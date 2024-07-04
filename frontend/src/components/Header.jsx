@@ -30,7 +30,7 @@ function Header() {
        <li className='hidden sm:inline text-stone-200  hover:underline'>About</li>
        </Link>
         
-        <Link to="/signIn">
+        <Link to="/signin">
         <li className=' text-stone-200  hover:underline'>Sign In</li>
         </Link>
 
