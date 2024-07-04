@@ -1,6 +1,6 @@
 import {Link, useNavigate} from 'react-router-dom'
 import { useState } from 'react';
-
+import {toast} from 'react-toastify';
 
 function SignUp() {
 
@@ -34,15 +34,18 @@ function SignUp() {
      if(data.success === false){
        setError(data.message);
        setLoading(false);
+       toast.error("something went wrong");
        return;
      }
      setLoading(false);
      setError(null);
+     toast.success("User successfully sign up !! ");
      navigate('/signin')
       
      }catch(error){
          setLoading(false);
          setError(error.message);
+         toast.error("something went wrong");
      }
   }
 
@@ -73,7 +76,7 @@ function SignUp() {
         />
        <button 
        disabled={loading}
-       className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
+       className="bg-slate-700 text-white font-semibold p-3 rounded-lg uppercase hover:opacity-90 disabled:opacity-70">
         {loading ? 'Loading...' : 'Sign Up'}
         </button>
       </form>
@@ -84,7 +87,7 @@ function SignUp() {
            hover:underline '>Sign In</span>
         </Link>
       </div> 
- {error && <p className='text-red-600'>{error}</p>}
+ {/* {error && <p className='text-red-600'>{error}</p>} */}
     </div>
   )
 }
