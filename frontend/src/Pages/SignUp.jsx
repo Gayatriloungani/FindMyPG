@@ -1,6 +1,7 @@
 import {Link, useNavigate} from 'react-router-dom'
 import { useState } from 'react';
 import {toast} from 'react-toastify';
+import OAuth from '../components/OAuth';
 
 function SignUp() {
 
@@ -79,6 +80,7 @@ function SignUp() {
        className="bg-slate-700 text-white font-semibold p-3 rounded-lg uppercase hover:opacity-90 disabled:opacity-70">
         {loading ? 'Loading...' : 'Sign Up'}
         </button>
+        <OAuth/>
       </form>
       <div className="flex gap-2 mt-5 ">
         <p>Have an Account ? </p>
