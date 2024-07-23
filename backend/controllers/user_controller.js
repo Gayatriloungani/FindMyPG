@@ -9,7 +9,8 @@ export const test = (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
-
+    // console.log('user' , req.user.id);
+    // console.log("req.params" , req.params.id);
     if (req.user.id !== req.params.id) {
         return next(errorHandler(401, 'You can only update your own account'));
     }
@@ -40,6 +41,21 @@ export const updateUser = async (req, res, next) => {
             ...rest
         });
 
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteUser = async(req,res,next) => {
+    if(req.user.id !==req.params.id){
+        return next(errorHandler(401 , 'You can only delete your own account'));
+    }
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.clearCookie('access_token');
+        return res.status(201).json({
+            message:'User has been deleted...'
+        });
     } catch (error) {
         next(error);
     }

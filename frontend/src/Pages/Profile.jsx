@@ -2,18 +2,20 @@ import { useSelector } from "react-redux"
 import {useRef, useState ,useEffect} from 'react';
 import { app } from '../firebase';
 import {getDownloadURL, getStorage,ref, uploadBytesResumable} from 'firebase/storage';
-import { updateUserFailure, updateUserSuccess , updateUserStart } from "../redux/user/userSlice.js";
+import { updateUserFailure, updateUserSuccess , updateUserStart ,deleteUserFailure,deleteUserStart,deleteUserSuccess} from "../redux/user/userSlice.js";
 import { useDispatch } from 'react-redux';
+import {toast} from 'react-toastify';
 
 function Profile() {
   const fileRef = useRef(null);
   const dispatch = useDispatch();
 
-  const {currentUser} = useSelector(state => state.user);
+  const {currentUser,loading,error} = useSelector(state => state.user);
   const [file,setFile] = useState(undefined);
   const [filePerc , setFilePerc] = useState(0);
   const [fileUploadError , setFileUploadError] = useState(false);
   const [formData , setFormData] = useState({});
+  const [updateSuccess , setUpdateSuccess] = useState(false);
   // console.log(filePerc);
   // console.log(file);
   // console.log(formData);
@@ -64,7 +66,7 @@ function Profile() {
     e.preventDefault();
    try {
      dispatch(updateUserStart());
-    
+     console.log("profileid",currentUser);
      const res = await fetch(`/api/user/update/${currentUser._id}`, {
       method:'POST',
       headers:{
@@ -75,13 +77,35 @@ function Profile() {
      const data = await res.json();
      if(data.success === false){
       dispatch(updateUserFailure(data.message));
+      toast.error("something went wrong");
       return;
      }
      dispatch(updateUserSuccess(data));
+     setUpdateSuccess(true);
+     toast.success("User Updated successfully !");
     
    } catch (error) {
       dispatch(updateUserFailure(error.message));
+      toast.error("something went wrong");
    }
+  }
+
+  const handleDeleteUser = async() => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`,{
+        method:'DELETE',
+      });
+      const data = await res.json();
+      if(data.success === false){
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      console.log(error);
+       dispatch(deleteUserFailure(error.message));
+    }
   }
   return (
     <div className='p-3 max-w-lg mx-auto'>
@@ -138,19 +162,34 @@ function Profile() {
          />
 
         <input 
-         type="text"
+         type="password"
          placeholder="password"
          id="password"
          className="border p-3 rounded-lg"
          onChange={handleChange}
          />
 
-          <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">Update</button>
+          <button disabled={loading} className=" bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
+            {
+            loading ? 
+            'Loading...' : 'Update'
+            }
+            </button>
       </form>
       <div className="flex justify-between mt-5">
-           <span className="text-red-700 cursor-pointer">Delete Account</span>
+           <span onClick={handleDeleteUser} className="text-red-700 cursor-pointer">Delete Account</span>
            <span className="text-red-700 cursor-pointer">Sign Out</span>
       </div>
+      <p className="text-red-700 mt-5">
+     {
+         error ? error : ''
+     }
+     </p>
+     <p className="text-green-700 mt-5">
+     {
+         updateSuccess ? 'User Updated Successfully' : ''
+     }
+     </p>
     </div>
   )
 }

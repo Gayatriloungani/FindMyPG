@@ -58,8 +58,8 @@ export const signin = async(req,res,next) => {
     })
 
     const options = {
-      expiresIn:new Date(Date.now() + 3*24*60*60*1000),
-      httpOnly:true
+      expiresIn : new Date(Date.now() + 3*24*60*60*1000),
+      httpOnly : true
     }
 
     const {password:pass , ...rest} = validUser._doc;
