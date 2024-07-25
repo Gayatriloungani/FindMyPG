@@ -5,6 +5,7 @@ import {getDownloadURL, getStorage,ref, uploadBytesResumable} from 'firebase/sto
 import { updateUserFailure, updateUserSuccess , updateUserStart ,deleteUserFailure,deleteUserStart,deleteUserSuccess,SignOutUserFailure,SignOutUserStart,SignOutUserSuccess} from "../redux/user/userSlice.js";
 import { useDispatch } from 'react-redux';
 import {toast} from 'react-toastify';
+import {Link} from 'react-router-dom';
 
 function Profile() {
   const fileRef = useRef(null);
@@ -93,6 +94,7 @@ function Profile() {
   const handleDeleteUser = async() => {
     try {
       dispatch(deleteUserStart());
+      console.log(currentUser._id);
       const res = await fetch(`/api/user/delete/${currentUser._id}`,{
         method:'DELETE',
       });
@@ -114,12 +116,12 @@ function Profile() {
       const res = await fetch('/api/auth/signout');
       const data = await res.json();
       if(data.success === false){
-        dispatch(SignOutUserFailure(data.message));
+        dispatch(deleteUserFailure(data.message));
         return;
       }
-      dispatch(SignOutUserSuccess(data));
+      dispatch(deleteUserSuccess(data));
     } catch (error) {
-      dispatch(SignOutUserFailure(error.message));
+      dispatch(deleteUserFailure(error.message))
     }
   }
 
@@ -192,6 +194,9 @@ function Profile() {
             'Loading...' : 'Update'
             }
             </button>
+          <Link className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity:95" to={"/create-listing"}>
+              Create Listing
+          </Link>
       </form>
       <div className="flex justify-between mt-5">
            <span onClick={handleDeleteUser} className="text-red-700 cursor-pointer">Delete Account</span>
