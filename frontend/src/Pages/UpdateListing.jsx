@@ -1,14 +1,16 @@
-import { useState } from "react"
+
+import { useEffect, useState } from "react"
 import {getDownloadURL, getStorage,ref, uploadBytesResumable} from 'firebase/storage';
 import {app} from '../firebase';
 import {useSelector} from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useParams } from 'react-router-dom';
 import {toast} from 'react-toastify';
 
-const CreateListing = () => {
+const UpdateListing = () => {
 
   const {currentUser} = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const params = useParams();
   const [files,setFiles] = useState([]);
   const [formData , setFormData] = useState({
     imageUrls : [],
@@ -30,9 +32,24 @@ const CreateListing = () => {
   const [error , setError] = useState(false);
   const [loading , setLoading] = useState(false);
   // const [success , setSuccess] = useState(false);
-  // console.log(formData);
+
   // console.log(files);
 
+
+   useEffect(() => {
+     const fetchListing = async() => {
+        const listingId = params.listingId;
+        console.log(listingId);
+        const res = await fetch(`/api/listing/get/${listingId}`);
+        const data = await res.json();
+        if(data.success === false){
+            toast.error("Something went wrong!");
+        }
+        setFormData(data);
+     }
+
+     fetchListing();
+  },[])
   const handleImageSubmit = (e) => {
       if(files.length > 0 && files.length + formData.imageUrls.length < 7){
 
@@ -46,14 +63,13 @@ const CreateListing = () => {
         }
         Promise.all(promises).then((urls) => {
           setFormData({
-            ...formData, 
-            imageUrls:formData.imageUrls.concat(urls)
+            ...formData , imageUrls:formData.imageUrls.concat(urls)
           });
           setImageUploadError(false);
           setUploading(false);
           
         }).catch((err) => {
-          setImageUploadError('Image upload files (2mb per image)');
+          setImageUploadError('Image upload failes (2mb per image)');
           toast.error("Something went wrong");
           setUploading(false);
         })    
@@ -132,7 +148,7 @@ const CreateListing = () => {
        setLoading(true);
        setError(false);
        
-       const res = await fetch(`/api/listing/create` , {
+       const res = await fetch(`/api/listing/update/${params.listingId}` , {
          method:'POST',
          headers: {
           'Content-Type' : 'application/json',
@@ -144,7 +160,6 @@ const CreateListing = () => {
        });
 
        const data = await res.json();
-       console.log(data);
        setLoading(false);
        if(data.success === false){
         setError(data.message);
@@ -152,7 +167,7 @@ const CreateListing = () => {
        }
        console.log(data);
        navigate(`/listing/${data._id}`);
-      toast.success("Listing Created !");
+      toast.success("Listing Updated !");
      } catch (error) {
        setError(error.message);
        toast.error("Something went wrong");
@@ -161,7 +176,7 @@ const CreateListing = () => {
   }
   return (
     <main className="p-3 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-semibold text-center my-7">CREATE A LISTING</h1>
+        <h1 className="text-3xl font-semibold text-center my-7">UPDATE  LISTING</h1>
          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
             <div className="flex flex-col gap-4 flex-1">
                 <input 
@@ -377,7 +392,7 @@ const CreateListing = () => {
 
           <button  disabled={loading || uploading} className="p-2 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
                {
-                   loading ? 'Creating...' : 'Create Listing'
+                   loading ? 'Updating...' : 'Update Listing'
                }
             </button>
             {
@@ -391,4 +406,4 @@ const CreateListing = () => {
   )
 }
 
-export default CreateListing
+export default UpdateListing
