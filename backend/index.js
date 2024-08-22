@@ -5,6 +5,8 @@ import userRouter from './routes/user_route.js'
 import authRouter from './routes/auth_route.js'
 import listingRouter from './routes/listing_route.js'
 import cookieParser from 'cookie-parser';
+import path from 'path';
+
 dotenv.config();
 
 //databse connected
@@ -13,6 +15,10 @@ mongoose.connect(process.env.mongo_db_url).then(() => {
 }).catch((error) => {
     console.log(error);
 })
+
+
+const __dirname = path.resolve();
+
 
 const app = express();
 
@@ -29,6 +35,11 @@ app.use('/api/user', userRouter);
 app.use('/api/listing', listingRouter);
 
 
+app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+})
 
 //error handling using middleware
 app.use((err,req,res,next) => {
