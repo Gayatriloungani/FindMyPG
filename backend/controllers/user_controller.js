@@ -5,10 +5,10 @@ import Listing from '../models/listing_model.js';
 
 export const test = (req, res) => {
     res.json({
-        message: "hh",
+      message: 'Api route is working!',
     });
-};
-
+  };
+  
 export const updateUser = async (req, res, next) => {
     // console.log('user' , req.user.id);
     // console.log("req.params" , req.params.id);
@@ -75,3 +75,18 @@ export const getUserListings = async(req,res,next) => {
         return next(errorHandler(401, 'You can only view your own listings'));
     }
 }
+
+export const getUser = async (req, res, next) => {
+    try {
+      
+      const user = await User.findById(req.params.id);
+    
+      if (!user) return next(errorHandler(404, 'User not found!'));
+    
+      const { password: pass, ...rest } = user._doc;
+    
+      res.status(200).json(rest);
+    } catch (error) {
+      next(error);
+    }
+  };
